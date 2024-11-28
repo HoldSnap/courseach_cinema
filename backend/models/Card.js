@@ -6,8 +6,6 @@ module.exports = (sequelize, DataTypes) => {
   class Card extends Model {
     static associate(models) {
       Card.belongsTo(models.Client, {foreignKey: 'clientId', as: 'client'});
-      // История начислений и списаний баллов может быть реализована через
-      // отдельную модель, например, CardTransaction
     }
   }
   Card.init(

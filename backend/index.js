@@ -1,17 +1,23 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-// const cors = require('cors');
-const routes = require('./routes/index');
-
 const app = express();
-const PORT = process.env.PORT || 3000;
+require('dotenv').config();
 
-// app.use(cors());
+const bodyParser = require('body-parser');
+const {authenticate, errorHandler} =
+    require('./middleware');         // Импортируем middleware
+const routes = require('./routes');  // Импортируем общий роутер
 
+// Middleware для парсинга тела запроса
 app.use(bodyParser.json());
 
-app.use('/', routes);
+// Роуты для всех запросов
+app.use('/api', routes);  // Все роуты находятся в /api
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+// Общий middleware для обработки ошибок
+app.use(errorHandler);
+
+// Запуск сервера
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Сервер запущен на порту ${port}`);
 });
