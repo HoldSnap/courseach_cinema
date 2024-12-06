@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       Ticket.belongsTo(
           models.Session, {foreignKey: 'sessionId', as: 'session'});
       Ticket.belongsTo(models.Client, {foreignKey: 'clientId', as: 'client'});
+      Ticket.belongsTo(models.Seat, {foreignKey: 'seatId', as: 'seat'});
       Ticket.hasOne(models.Sale, {foreignKey: 'ticketId', as: 'sale'});
     }
   }
@@ -46,8 +47,16 @@ module.exports = (sequelize, DataTypes) => {
           },
           onDelete: 'CASCADE',
         },
+        seatId: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          references: {
+            model: 'Seats',
+            key: 'id',
+          },
+          onDelete: 'CASCADE',
+        },
         reservationStatus: {
-          // Статус бронирования
           type: DataTypes.ENUM('reserved', 'paid'),
           allowNull: false,
           defaultValue: 'reserved',
@@ -58,6 +67,13 @@ module.exports = (sequelize, DataTypes) => {
         modelName: 'Ticket',
         tableName: 'Tickets',
         timestamps: false,
+        indexes: [
+          {
+            unique: true,
+            fields: ['sessionId', 'seatId'],
+            name: 'unique_ticket_per_seat_per_session',
+          },
+        ],
       });
   return Ticket;
 };

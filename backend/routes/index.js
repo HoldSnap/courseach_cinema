@@ -1,18 +1,16 @@
+// routes/index.js
 const express = require('express');
-const router = express.Router();
-
-// Импортируем роуты для фильмов и пользователей
 const filmRoutes = require('./filmRoutes');
-// const userRoutes = require('./userRoutes');
-const authRoutes =
-    require('./authRoutes');  // Импортируем роуты для аутентификации
+const authRoutes = require('./authRoutes');  // Роуты для аутентификации
 const sessionRoutes = require('./sessionRoutes');
+const ticketRoutes = require('./ticketRoutes');  // Роуты для билетов
+
+const router = express.Router();
 
 // Подключаем роуты
 router.use('/films', filmRoutes);  // Все маршруты, связанные с фильмами
-// router.use('/users', userRoutes);  // Все маршруты, связанные с
-// пользователями
 router.use('/auth', authRoutes);  // Все маршруты, связанные с аутентификацией
-router.use('/sessions', sessionRoutes);
+router.use('/sessions', sessionRoutes);  // Все маршруты, связанные с сессиями
+router.use('/tickets', ticketRoutes);  // Все маршруты, связанные с билетами
 
 module.exports = router;

@@ -1,10 +1,13 @@
+// controllers/authController.js
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const {User, Administrator} = require('../models');
+const {User, Administrator, Client} =
+    require('../models');  // Импортируем модель Client
 
 // Регистрация нового пользователя
 async function register(req, res) {
-  const {login, password, role} = req.body;
+  const {login, password, role, name} =
+      req.body;  // Добавлено поле 'name' для клиента
 
   try {
     // Проверяем, существует ли уже пользователь с таким логином
@@ -28,7 +31,19 @@ async function register(req, res) {
     if (role === 'administrator') {
       await Administrator.create({
         userId: user.id,
-        name: 'Admin'  // Имя администратора можно передать через запрос
+        name: name || 'Admin',  // Имя администратора можно передать через
+                                // запрос или использовать значение по умолчанию
+      });
+    }
+
+    // Если роль клиента, создаем запись в таблице клиента
+    if (role === 'client') {
+      await Client.create({
+        userId: user.id,
+        name: name || 'Client',  // Имя клиента можно передать через запрос или
+                                 // использовать значение по умолчанию
+        balance: 100.00,  // Начальный баланс клиента, можно задать по умолчанию
+                          // или передать через запрос
       });
     }
 
