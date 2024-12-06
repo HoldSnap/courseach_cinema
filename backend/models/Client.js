@@ -32,6 +32,11 @@ module.exports = (sequelize, DataTypes) => {
           type: DataTypes.STRING,
           allowNull: false,
         },
+        balance: {
+          type: DataTypes.DECIMAL(10, 2),  // Тип данных для хранения денег
+          allowNull: false,
+          defaultValue: 0.00,  // Начальный баланс по умолчанию
+        },
       },
       {
         sequelize,
