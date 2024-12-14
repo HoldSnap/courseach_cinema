@@ -1,48 +1,41 @@
+// controllers/sessionController.js
 const {Session, Film, Hall} = require('../models');
 const {Op} = require('sequelize');
+
 // Контроллер для создания сессии
 async function createSession(req, res) {
   try {
-    // Проверяем, что объект user существует в запросе
     if (!req.user) {
       return res.status(401).json({message: 'Пользователь не авторизован.'});
     }
 
-    // Проверка роли администратора (только администраторы могут создавать
-    // сессии)
     if (req.user.role !== 'administrator') {
       return res.status(403).json(
           {message: 'Только администраторы могут создавать сессии.'});
     }
 
-    // Данные сессии, переданные в запросе
     const {startTime, endTime, ticketPrice, filmId, hallId} = req.body;
 
-    // Проверяем, что фильм с таким ID существует
     const film = await Film.findByPk(filmId);
     if (!film) {
       return res.status(404).json({message: 'Фильм не найден.'});
     }
 
-    // Проверяем, что зал с таким ID существует
     const hall = await Hall.findByPk(hallId);
     if (!hall) {
       return res.status(404).json({message: 'Зал не найден.'});
     }
 
-    // Проверка, что зал не занят в указанное время
     const conflictingSession = await Session.findOne({
       where: {
         hallId: hallId,
-        // Проверяем пересечение времени с другими сессиями
         [Op.or]: [
           {
             startTime: {
-              [Op.lt]: endTime,  // если начало сессии раньше конца новой сессии
+              [Op.lt]: endTime,
             },
             endTime: {
-              [Op.gt]:
-                  startTime,  // и если конец сессии позже начала новой сессии
+              [Op.gt]: startTime,
             },
           },
         ],
@@ -50,12 +43,10 @@ async function createSession(req, res) {
     });
 
     if (conflictingSession) {
-      return res.status(400).json({
-        message: 'Зал занят в указанный промежуток времени.',
-      });
+      return res.status(400).json(
+          {message: 'Зал занят в указанный промежуток времени.'});
     }
 
-    // Создание новой сессии
     const newSession = await Session.create({
       startTime,
       endTime,
@@ -64,7 +55,6 @@ async function createSession(req, res) {
       hallId,
     });
 
-    // Ответ с информацией о созданной сессии
     return res.status(201).json(newSession);
   } catch (error) {
     console.error(error);
@@ -73,4 +63,52 @@ async function createSession(req, res) {
   }
 }
 
-module.exports = {createSession};
+
+// Контроллер для получения сессий
+async function getSessions(req, res) {
+  try {
+    const {date} = req.query;  // Ожидаем параметр даты в формате YYYY-MM-DD
+
+    // Формируем условие поиска
+    let whereCondition = {};
+    if (date) {
+      const startOfDay = new Date(date);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(date);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      whereCondition.startTime = {
+        [Op.between]: [startOfDay, endOfDay],
+      };
+    }
+
+    // Получаем сессии с связанными фильмами и залами
+    const sessions = await Session.findAll({
+      where: whereCondition,
+      include: [
+        {
+          model: Film,
+          as: 'film',
+          attributes: ['id', 'title', /* 'description', */ 'duration', 'genre', 'premiereDate', 'pointUsageRestriction'], // Удалите 'description'
+        },
+        {
+          model: Hall,
+          as: 'hall',
+          attributes: ['id', 'name', 'capacity'],
+        },
+      ],
+      order: [['startTime', 'ASC']],
+    });
+
+    return res.status(200).json(sessions);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(
+        {message: 'Ошибка при получении сессий.', error: error.message});
+  }
+}
+
+module.exports = {
+  createSession,
+  getSessions
+};

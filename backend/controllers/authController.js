@@ -1,13 +1,12 @@
 // controllers/authController.js
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const {User, Administrator, Client} =
-    require('../models');  // Импортируем модель Client
+const {User, Client} =
+    require('../models');  // Импортируем только необходимые модели
 
-// Регистрация нового пользователя
+// Регистрация нового клиента
 async function register(req, res) {
-  const {login, password, role, name} =
-      req.body;  // Добавлено поле 'name' для клиента
+  const {login, password, name} = req.body;  // Удалено поле 'role'
 
   try {
     // Проверяем, существует ли уже пользователь с таким логином
@@ -20,35 +19,23 @@ async function register(req, res) {
     // Хешируем пароль
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Создаем нового пользователя
+    // Создаем нового пользователя с ролью 'client'
     const user = await User.create({
       login,
       password: hashedPassword,
-      role,  // 'administrator', 'cashier', или 'client'
+      role: 'client',  // Роль устанавливается автоматически
     });
 
-    // Если роль администратора, создаем запись в таблице администратора
-    if (role === 'administrator') {
-      await Administrator.create({
-        userId: user.id,
-        name: name || 'Admin',  // Имя администратора можно передать через
-                                // запрос или использовать значение по умолчанию
-      });
-    }
+    // Создаем запись в таблице клиента
+    await Client.create({
+      userId: user.id,
+      name: name || 'Client',  // Имя клиента можно передать через запрос или
+                               // использовать значение по умолчанию
+      balance: 100.00,  // Начальный баланс клиента, можно задать по умолчанию
+                        // или передать через запрос
+    });
 
-    // Если роль клиента, создаем запись в таблице клиента
-    if (role === 'client') {
-      await Client.create({
-        userId: user.id,
-        name: name || 'Client',  // Имя клиента можно передать через запрос или
-                                 // использовать значение по умолчанию
-        balance: 100.00,  // Начальный баланс клиента, можно задать по умолчанию
-                          // или передать через запрос
-      });
-    }
-
-    return res.status(201).json(
-        {message: 'Пользователь успешно зарегистрирован!'});
+    return res.status(201).json({message: 'Клиент успешно зарегистрирован!'});
   } catch (error) {
     console.error(error);
     return res.status(500).json(

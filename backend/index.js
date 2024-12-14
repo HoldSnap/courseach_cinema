@@ -1,11 +1,13 @@
 const express = require('express');
 const app = express();
 require('dotenv').config();
+const cors = require('cors');
 
 const bodyParser = require('body-parser');
 const {authenticate, errorHandler} =
     require('./middleware');         // Импортируем middleware
 const routes = require('./routes');  // Импортируем общий роутер
+app.use(cors());
 
 // Middleware для парсинга тела запроса
 app.use(bodyParser.json());
