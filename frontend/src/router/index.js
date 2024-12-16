@@ -1,16 +1,23 @@
-import {createRouter, createWebHistory} from 'vue-router';
+// src/router/index.js
+import {createRouter, createWebHistory} from 'vue-router'
 
-import Dashboard from '../views/Dashboard.vue'; // Создайте эту страницу по необходимости
-import Login from '../views/Login.vue';
-import Register from '../views/Register.vue';
+import SessionsList from '../components/SessionsList.vue'
+import AdminDashboard from '../views/AdminDashboard.vue'
+import UserLogin from '../views/UserLogin.vue'
+import UserRegister from '../views/UserRegister.vue'
 
 const routes = [
-  {path: '/', redirect: '/login'}, {path: '/login', component: Login},
-  {path: '/register', component: Register},
-  {path: '/dashboard', component: Dashboard, meta: {requiresAuth: true}}
+  {path: '/', redirect: '/login'}, {path: '/login', component: UserLogin},
+  {path: '/register', component: UserRegister},
+  {path: '/dashboard', component: AdminDashboard, meta: {requiresAuth: true}},
+  {path: '/sessions', component: SessionsList},
+  // Другие маршруты...
 ];
 
-const router = createRouter({history: createWebHistory(), routes});
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+});
 
 // Защита маршрутов, требующих аутентификации
 import {useAuthStore} from '../stores/auth';

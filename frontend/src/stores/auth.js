@@ -2,7 +2,7 @@ import axios from 'axios';
 import {defineStore} from 'pinia';
 import {ref} from 'vue';
 
-import router from '../router'; // Предполагается, что вы используете Vue Router
+import router from '../router';
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null);
