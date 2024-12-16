@@ -1,13 +1,19 @@
+// server.js или app.js
 const express = require('express');
 const app = express();
 require('dotenv').config();
 const cors = require('cors');
-
 const bodyParser = require('body-parser');
 const {authenticate, errorHandler} =
     require('./middleware');         // Импортируем middleware
 const routes = require('./routes');  // Импортируем общий роутер
-app.use(cors());
+
+// Настройка CORS
+app.use(cors({
+  origin: 'http://localhost:5173',  // Замените на адрес вашего фронтенда
+                                    // (например, порт Vite)
+  credentials: true,  // Разрешить передачу учётных данных (куки)
+}));
 
 // Middleware для парсинга тела запроса
 app.use(bodyParser.json());
