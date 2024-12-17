@@ -5,7 +5,7 @@ const {Model} = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Seat extends Model {
     static associate(models) {
-      Seat.belongsTo(models.Hall, {foreignKey: 'hallId', as: 'hall'});
+      Seat.belongsTo(models.Session, {foreignKey: 'sessionId', as: 'session'});
       Seat.hasMany(models.Ticket, {foreignKey: 'seatId', as: 'tickets'});
     }
   }
@@ -22,20 +22,16 @@ module.exports = (sequelize, DataTypes) => {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
-        row: {
-          type: DataTypes.STRING,
-          allowNull: false,
-        },
         isAvailable: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
           defaultValue: true,  // Место по умолчанию доступно
         },
-        hallId: {
+        sessionId: {
           type: DataTypes.INTEGER,
           allowNull: false,
           references: {
-            model: 'Halls',
+            model: 'Sessions',
             key: 'id',
           },
           onDelete: 'CASCADE',

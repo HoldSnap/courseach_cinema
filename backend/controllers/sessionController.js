@@ -1,5 +1,5 @@
 // controllers/sessionController.js
-const {Session, Film, Hall} = require('../models');
+const {Session, Film, Hall, Seat} = require('../models');
 const {Op} = require('sequelize');
 
 // Контроллер для создания сессии
@@ -55,14 +55,29 @@ async function createSession(req, res) {
       hallId,
     });
 
-    return res.status(201).json(newSession);
+    // Генерация мест на основе емкости зала
+    const seats = [];
+    for (let i = 1; i <= hall.capacity; i++) {
+      seats.push({
+        number: i,
+        isAvailable: true,
+        sessionId: newSession.id,
+      });
+    }
+
+    await Seat.bulkCreate(seats);
+
+    // Получение сгенерированных мест
+    const generatedSeats =
+        await Seat.findAll({where: {sessionId: newSession.id}});
+
+    return res.status(201).json({session: newSession, seats: generatedSeats});
   } catch (error) {
     console.error(error);
     return res.status(500).json(
         {message: 'Ошибка при создании сессии.', error: error.message});
   }
 }
-
 
 // Контроллер для получения сессий
 async function getSessions(req, res) {
@@ -89,12 +104,17 @@ async function getSessions(req, res) {
         {
           model: Film,
           as: 'film',
-          attributes: ['id', 'title', /* 'description', */ 'duration', 'genre', 'premiereDate', 'pointUsageRestriction'], // Удалите 'description'
+          attributes: ['id', 'title', 'duration', 'genre', 'premiereDate', 'pointUsageRestriction'],
         },
         {
           model: Hall,
           as: 'hall',
-          attributes: ['id', 'name', 'capacity'],
+          attributes: ['id', 'name', 'capacity', 'hasComfortSeats'],
+        },
+        {
+          model: Seat,
+          as: 'seats',
+          attributes: ['id', 'number', 'isAvailable'],
         },
       ],
       order: [['startTime', 'ASC']],
@@ -110,5 +130,5 @@ async function getSessions(req, res) {
 
 module.exports = {
   createSession,
-  getSessions
+  getSessions,
 };

@@ -1,4 +1,3 @@
-// controllers/ticketController.js
 const {Ticket, Seat, Session, sequelize} = require('../models');
 
 const purchaseTicket = async (req, res) => {
@@ -16,11 +15,14 @@ const purchaseTicket = async (req, res) => {
 
       // Проверка существования места
       const seat = await Seat.findOne({
-        where: {id: seatId, hallId: session.hallId},
+        where: {
+          id: seatId,
+          sessionId: sessionId
+        },  // Исправлено: hallId -> sessionId
         transaction: t,
       });
       if (!seat) {
-        throw new Error('Seat not found in the specified hall');
+        throw new Error('Seat not found in the specified session');
       }
 
       // Проверка доступности места для сессии
@@ -28,7 +30,7 @@ const purchaseTicket = async (req, res) => {
         throw new Error('Seat is already booked');
       }
 
-      // Проверка, что место не занято
+      // Дополнительная проверка наличия билета (опционально)
       const existingTicket = await Ticket.findOne({
         where: {sessionId, seatId},
         transaction: t,
@@ -38,7 +40,11 @@ const purchaseTicket = async (req, res) => {
       }
 
       // Проверка баланса клиента
-      if (parseFloat(req.client.balance) < parseFloat(session.ticketPrice)) {
+      const ticketPrice = parseFloat(session.ticketPrice);
+      const clientBalance = parseFloat(req.client.balance);
+
+      if (isNaN(clientBalance) || isNaN(ticketPrice) ||
+          clientBalance < ticketPrice) {
         throw new Error('Insufficient balance');
       }
 
@@ -48,7 +54,7 @@ const purchaseTicket = async (req, res) => {
             sessionId,
             seatId,
             clientId,
-            price: session.ticketPrice,
+            price: ticketPrice,
             reservationStatus: 'paid',
           },
           {transaction: t});
@@ -58,8 +64,9 @@ const purchaseTicket = async (req, res) => {
       await seat.save({transaction: t});
 
       // Обновление баланса клиента
+      const updatedBalance = clientBalance - ticketPrice;
       req.client.balance =
-          parseFloat(req.client.balance) - parseFloat(session.ticketPrice);
+          updatedBalance.toFixed(2);  // Форматирование до 2 знаков
       await req.client.save({transaction: t});
 
       return ticket;
@@ -68,7 +75,10 @@ const purchaseTicket = async (req, res) => {
     res.status(201).json(
         {message: 'Ticket purchased successfully', ticket: result});
   } catch (error) {
-    console.error('Ошибка при бронировании билета:', error);
+    console.error(
+        `Ошибка при бронировании билета (Session ID: ${
+            req.body.sessionId}, Seat ID: ${req.body.seatId}):`,
+        error);
     res.status(400).json({error: error.message});
   }
 };

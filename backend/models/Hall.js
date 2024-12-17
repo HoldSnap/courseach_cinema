@@ -6,9 +6,9 @@ module.exports = (sequelize, DataTypes) => {
   class Hall extends Model {
     static associate(models) {
       Hall.hasMany(models.Session, {foreignKey: 'hallId', as: 'sessions'});
-      Hall.hasMany(models.Seat, {foreignKey: 'hallId', as: 'seats'});
     }
   }
+
   Hall.init(
       {
         id: {
@@ -37,5 +37,6 @@ module.exports = (sequelize, DataTypes) => {
         tableName: 'Halls',
         timestamps: false,
       });
+
   return Hall;
 };

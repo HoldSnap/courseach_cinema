@@ -7,9 +7,11 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Session.belongsTo(models.Film, {foreignKey: 'filmId', as: 'film'});
       Session.belongsTo(models.Hall, {foreignKey: 'hallId', as: 'hall'});
+      Session.hasMany(models.Seat, {foreignKey: 'sessionId', as: 'seats'});
       Session.hasMany(models.Ticket, {foreignKey: 'sessionId', as: 'tickets'});
     }
   }
+
   Session.init(
       {
         id: {
@@ -27,7 +29,6 @@ module.exports = (sequelize, DataTypes) => {
           allowNull: false,
         },
         ticketPrice: {
-          // Стоимость билета
           type: DataTypes.DECIMAL(10, 2),
           allowNull: false,
         },
@@ -56,5 +57,6 @@ module.exports = (sequelize, DataTypes) => {
         tableName: 'Sessions',
         timestamps: false,
       });
+
   return Session;
 };
