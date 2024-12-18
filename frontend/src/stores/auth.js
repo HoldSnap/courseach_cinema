@@ -1,4 +1,3 @@
-// stores/auth.js
 import axios from 'axios';
 import {defineStore} from 'pinia';
 import {onMounted, ref} from 'vue';
@@ -11,7 +10,6 @@ export const useAuthStore = defineStore('auth', () => {
   const loading = ref(false);
 
   // Функция для загрузки пользователя из localStorage при инициализации
-  // хранилища
   const loadUserFromLocalStorage = () => {
     const userData = localStorage.getItem('user');
     if (userData) {
@@ -24,6 +22,7 @@ export const useAuthStore = defineStore('auth', () => {
     loadUserFromLocalStorage();
   });
 
+  // Вход в систему
   const login = async (loginData) => {
     loading.value = true;
     error.value = null;
@@ -42,6 +41,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
+  // Регистрация пользователя
   const register = async (registerData) => {
     loading.value = true;
     error.value = null;
@@ -60,9 +60,9 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
+  // Выход из системы
   const logout = () => {
     user.value = null;
-    // Удаление пользователя из localStorage при выходе
     localStorage.removeItem('user');
     router.push('/login');
   };

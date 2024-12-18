@@ -2,6 +2,7 @@ import {createRouter, createWebHistory} from 'vue-router'
 
 import SeatsPage from '../components/SeatsPage.vue'
 import SessionsList from '../components/SessionsList.vue'
+import ProfilePage from '../components/UserProfile.vue'; // Импортируем компонент профиля
 import AdminDashboard from '../views/AdminDashboard.vue'
 import UserLogin from '../views/UserLogin.vue'
 import UserRegister from '../views/UserRegister.vue'
@@ -22,6 +23,13 @@ const routes =
         name: 'seats',
         component: SeatsPage,
         props: route => ({sessionId: route.query.sessionId})
+      },
+      {
+        path: '/profile',  // Путь для профиля
+        component: ProfilePage,  // Компонент, который будет отображаться
+        meta: {
+          requiresAuth: true
+        },  // Можно добавить защиту для авторизованных пользователей
       },
     ]
 

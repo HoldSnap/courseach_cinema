@@ -1,15 +1,16 @@
 <template>
-  <v-app>
-
-  <router-view />
-</v-app>
-
+  <v-app class="app-container">
+    <Header />
+    <router-view />
+  </v-app>
 </template>
 
 <script setup>
-import { defineComponent } from 'vue'
-
-defineComponent({})
+import Header from './components/Header.vue';
 </script>
 
-<style scoped></style>
+<style scoped>
+.app-container {
+  padding: 34px;  /* Добавляем небольшой padding */
+}
+</style>
