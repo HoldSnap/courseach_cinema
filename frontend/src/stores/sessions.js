@@ -1,4 +1,3 @@
-// src/stores/sessions.js
 import axios from 'axios'
 import {defineStore} from 'pinia'
 import {ref} from 'vue'
@@ -21,7 +20,15 @@ const error = ref(null)
     // Логирование полного ответа от API
     console.log('API Response:', response.data)
 
-    sessions.value = response.data  // response.data — массив сессий
+    // Получаем текущее время в формате ISO
+    const currentTime = new Date().toISOString()
+
+    // Фильтруем сессии, исключая те, которые уже начались или завершились
+    sessions.value = response.data.filter(
+        session => {
+            return session.startTime >
+            currentTime  // Оставляем только будущие сессии
+        })
 
     // Логирование полученных сессий
     console.log('Fetched Sessions:', sessions.value)

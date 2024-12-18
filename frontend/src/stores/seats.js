@@ -3,23 +3,23 @@ import axios from 'axios'
 import {defineStore} from 'pinia'
 import {ref} from 'vue'
 
+import {eventBus} from '../event-bus'
+
 import {useAuthStore} from './auth'
 
 export const useSeatsStore = defineStore('seats', () => {
   const seats = ref([])
 const loading = ref(false)
-const error = ref(null)
 
   const fetchSeats = async (sessionId) => {
   loading.value = true
-  error.value = null
   try {
     const response = await axios.get(
         `http://localhost:3000/api/seats/availability?sessionId=${sessionId}`)
     seats.value = response.data
   } catch (err) {
-    error.value = 'Ошибка при загрузке мест'
-    console.error('Fetch seats error:', err)
+    console.error('Error in fetchSeats:', err)
+    eventBus.addError('Ошибка при загрузке мест')
   } finally {
     loading.value = false
   }
@@ -30,15 +30,14 @@ const error = ref(null)
   const token = authStore.user?.token
 
   if (!token) {
-    error.value = 'Необходима авторизация'
+    eventBus.addError('Необходима авторизация')
     console.error('No token for authorization')
     return
   }
 
-  // Здесь мы создаём новый объект для данных бронирования
   const bookingData = {
-    sessionId: Number(seat.sessionId),  // Преобразуем sessionId в число
-    seatId: seat.seatId  // Убедитесь, что seat.id — это число
+    sessionId: Number(seat.sessionId),
+    seatId: seat.seatId
   }
 
   const config = {
@@ -46,19 +45,25 @@ const error = ref(null)
         {Authorization: `Bearer ${token}`, 'Content-Type': 'application/json'}
   }
 
-                 console.log('Booking data:', bookingData)
-
   try {
-    await axios.post(
+    const response = await axios.post(
         'http://localhost:3000/api/tickets/book', bookingData, config)
+    console.log('Booking response:', response)
     alert('Место забронировано')
   } catch (err) {
-    error.value = 'Ошибка при бронировании места'
     console.error('Booking error:', err.response ? err.response.data : err)
+
+    if (err.response && err.response.data &&
+        err.response.data.error === 'Insufficient balance') {
+      eventBus.addError('Недостаточно средств для бронирования')
+    }
+    else {
+      eventBus.addError('Ошибка при бронировании места')
+    }
   }
   }
 
   return {
-  seats, loading, error, fetchSeats, bookSeat
+  seats, loading, fetchSeats, bookSeat
   }
 })

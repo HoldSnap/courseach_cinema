@@ -52,7 +52,7 @@ export const useAuthStore = defineStore('auth', () => {
       // Сохранение пользователя в localStorage
       localStorage.setItem('user', JSON.stringify(response.data));
       // Перенаправление после успешной регистрации
-      router.push('/sessions');
+      router.push('/login');
     } catch (err) {
       error.value = err.response?.data?.message || 'Ошибка при регистрации';
     } finally {

@@ -1,8 +1,14 @@
 <template>
   <v-container>
     <!-- Сообщение об ошибке -->
-    <v-alert v-if="seatsStore.error" type="error" dismissible>
-      {{ seatsStore.error }}
+    <v-alert
+      v-for="(error, index) in eventBus.errors"
+      :key="index"
+      type="error"
+      dismissible
+      @dismiss="eventBus.errors.splice(index, 1)"
+    >
+      {{ error }}
     </v-alert>
 
     <!-- Индикатор загрузки -->
@@ -34,6 +40,7 @@ import { useRoute } from 'vue-router'
 import { useSeatsStore } from '../stores/seats'
 import { useAuthStore } from '../stores/auth'
 import { useRouter } from 'vue-router'
+import { eventBus } from '../event-bus'
 
 const route = useRoute()
 const seatsStore = useSeatsStore()
@@ -63,8 +70,8 @@ const bookSeat = async (seat) => {
     await seatsStore.bookSeat(data)
     await fetchSeats()  // Обновить доступные места после бронирования
   } catch (error) {
-    // Логирование ошибки в случае, если она не была обработана внутри store
     console.error('Booking error:', error)
+    eventBus.addError('Ошибка при бронировании места')
   }
 }
 
