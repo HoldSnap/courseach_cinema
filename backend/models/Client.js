@@ -37,6 +37,12 @@ module.exports = (sequelize, DataTypes) => {
           allowNull: false,
           defaultValue: 0.00,  // Начальный баланс по умолчанию
         },
+        avatar: {
+          type: DataTypes
+                    .STRING,  // Строка для хранения URL или пути к изображению
+          allowNull: true,    // Поле может быть пустым
+          defaultValue: null,  // Если аватар не задан, то по умолчанию null
+        },
       },
       {
         sequelize,
