@@ -1,4 +1,3 @@
-<!-- src/components/SessionsList.vue -->
 <template>
   <v-container>
     <!-- Фильтр по дате и кнопка сброса -->
@@ -54,6 +53,11 @@
       <template #item.endTime="{ item }">
         {{ formatDate(item.endTime) }}
       </template>
+
+      <!-- Кнопка для перехода на страницу с местами -->
+      <template #item.actions="{ item }">
+        <v-btn @click="goToSeats(item.id)" color="primary">Забронировать</v-btn>
+      </template>
     </v-data-table>
   </v-container>
 </template>
@@ -61,8 +65,10 @@
 <script setup>
 import { useSessionsStore } from '../stores/sessions'
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 const sessionsStore = useSessionsStore()
+const router = useRouter()
 
 const selectedDate = ref('')
 const search = ref('')
@@ -74,13 +80,13 @@ const headers = [
   { text: 'Цена билета', value: 'ticketPrice' },
   { text: 'Фильм', value: 'film.title' },
   { text: 'Зал', value: 'hall.name' },
+  { text: 'Действия', value: 'actions', sortable: false }
 ]
 
 const formatDate = (dateStr) => {
   const date = new Date(dateStr)
   return date.toLocaleString('ru-RU', { timeZone: 'UTC' })
 }
-
 
 const onDateChange = () => {
   sessionsStore.fetchSessions(selectedDate.value)
@@ -89,6 +95,10 @@ const onDateChange = () => {
 const resetFilter = () => {
   selectedDate.value = ''
   sessionsStore.fetchSessions()
+}
+
+const goToSeats = (sessionId) => {
+  router.push({ name: 'seats', query: { sessionId } })
 }
 
 onMounted(() => {
