@@ -13,8 +13,17 @@ let sequelize;
 if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], config);
 } else {
-  sequelize =
-      new Sequelize(config.database, config.username, config.password, config);
+  // Прямо вставляем значения из Docker Compose
+  sequelize = new Sequelize(
+      'mydatabase',  // DB_NAME из Docker Compose
+      'user1',       // DB_USER из Docker Compose
+      'password1',   // DB_PASS из Docker Compose
+      {
+        host: 'mysql',  // DB_HOST из Docker Compose (имя сервиса MySQL в Docker
+                        // Compose)
+        dialect: 'mysql',  // Драйвер MySQL
+        port: 3306         // DB_PORT из Docker Compose (порт MySQL)
+      });
 }
 
 fs.readdirSync(__dirname)
@@ -37,5 +46,6 @@ Object.keys(db).forEach(modelName => {
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
+db.Op = Sequelize.Op;
 
 module.exports = db;

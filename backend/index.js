@@ -9,11 +9,8 @@ const {authenticate, errorHandler} =
 const routes = require('./routes');  // Импортируем общий роутер
 
 // Настройка CORS
-app.use(cors({
-  origin: 'http://localhost:5173',  // Замените на адрес вашего фронтенда
-                                    // (например, порт Vite)
-  credentials: true,  // Разрешить передачу учётных данных (куки)
-}));
+app.use(cors());
+
 
 // Middleware для парсинга тела запроса
 app.use(bodyParser.json());

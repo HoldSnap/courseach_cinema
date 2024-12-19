@@ -5,7 +5,7 @@ module.exports = {
     await queryInterface.bulkInsert('Users', [
       {
         login: 'admin',
-        password: 'hashed_password',
+        password: 'admin',
         role: 'administrator',
         createdAt: new Date(),
         updatedAt: new Date(),
