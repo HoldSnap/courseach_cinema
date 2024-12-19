@@ -11,6 +11,6 @@ import Header from './components/Header.vue';
 
 <style scoped>
 .app-container {
-  padding: 34px;  /* Добавляем небольшой padding */
+  padding: 100px;  /* Добавляем небольшой padding */
 }
 </style>
