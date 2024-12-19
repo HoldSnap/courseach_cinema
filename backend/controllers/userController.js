@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const {User, Client} = require('../models');
 
 // Получение данных о пользователе по токену (имя и баланс)
+// Получение данных о пользователе по токену (имя, баланс и роль)
 async function getUserData(req, res) {
   // Получаем токен из заголовков авторизации
   const token = req.headers.authorization?.split(
@@ -21,7 +22,7 @@ async function getUserData(req, res) {
         include: {
           model: User,
           as: 'user',  // Подключаем пользователя, если нужно
-          attributes: ['login'],  // Выбираем нужные атрибуты
+          attributes: ['login', 'role'],  // Добавляем 'role' в атрибуты
         },
       });
 
@@ -29,11 +30,12 @@ async function getUserData(req, res) {
       return res.status(404).json({message: 'Клиент не найден'});
     }
 
-    // Отправляем имя, баланс и аватар клиента
+    // Отправляем имя, баланс, аватар и роль клиента
     return res.status(200).json({
       name: client.name,
       balance: client.balance,
       avatar: client.avatar,  // Добавляем аватар
+      role: client.user.role,  // Отправляем роль пользователя
     });
   } catch (err) {
     console.error(err);
@@ -43,6 +45,7 @@ async function getUserData(req, res) {
     });
   }
 }
+
 
 // Обновление имени и аватара пользователя
 async function updateProfile(req, res) {
