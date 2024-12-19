@@ -31,6 +31,12 @@ const routes =
           requiresAuth: true
         },  // Можно добавить защиту для авторизованных пользователей
       },
+      {
+        path: '/profile/edit',
+        name: 'EditProfile',
+        component: () => import(
+            '../components/EditProfile.vue')  // Страница редактирования профиля
+      },
     ]
 
     const router = createRouter({
