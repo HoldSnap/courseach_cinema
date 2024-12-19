@@ -17,26 +17,29 @@ async function getUserData(req, res) {
 
     // Находим клиента, используя userId из декодированного токена
     const client = await Client.findOne({
-      where: { userId: decoded.id },  // Ищем клиента по userId
-      include: {
-        model: User,
-        as: 'user',  // Подключаем пользователя, если нужно
-        attributes: ['login']  // Выбираем нужные атрибуты
-      }
-    });
+        where: { userId: decoded.id },  // Ищем клиента по userId
+        include: {
+          model: User,
+          as: 'user',  // Подключаем пользователя, если нужно
+          attributes: ['login'],  // Выбираем нужные атрибуты
+        },
+      });
 
     if (!client) {
       return res.status(404).json({message: 'Клиент не найден'});
     }
 
-    // Отправляем имя и баланс клиента
-    return res.status(200).json({name: client.name, balance: client.balance});
-
+    // Отправляем имя, баланс и аватар клиента
+    return res.status(200).json({
+      name: client.name,
+      balance: client.balance,
+      avatar: client.avatar,  // Добавляем аватар
+    });
   } catch (err) {
     console.error(err);
     return res.status(500).json({
       message: 'Ошибка при получении данных о пользователе',
-      error: err.message
+      error: err.message,
     });
   }
 }
