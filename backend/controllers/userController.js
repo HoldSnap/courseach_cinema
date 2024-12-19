@@ -1,28 +1,23 @@
 const jwt = require('jsonwebtoken');
 const {User, Client} = require('../models');
 
-// Получение данных о пользователе по токену (имя и баланс)
-// Получение данных о пользователе по токену (имя, баланс и роль)
 async function getUserData(req, res) {
-  // Получаем токен из заголовков авторизации
   const token = req.headers.authorization?.split(
-      ' ')[1];  // Типичный формат: "Bearer <token>"
+      ' ')[1]; 
 
   if (!token) {
     return res.status(401).json({message: 'Токен не предоставлен'});
   }
 
   try {
-    // Декодируем токен и получаем payload
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
-    // Находим клиента, используя userId из декодированного токена
     const client = await Client.findOne({
-        where: { userId: decoded.id },  // Ищем клиента по userId
+        where: { userId: decoded.id }, 
         include: {
           model: User,
-          as: 'user',  // Подключаем пользователя, если нужно
-          attributes: ['login', 'role'],  // Добавляем 'role' в атрибуты
+          as: 'user',  
+          attributes: ['login', 'role'],  
         },
       });
 
@@ -30,12 +25,11 @@ async function getUserData(req, res) {
       return res.status(404).json({message: 'Клиент не найден'});
     }
 
-    // Отправляем имя, баланс, аватар и роль клиента
     return res.status(200).json({
       name: client.name,
       balance: client.balance,
-      avatar: client.avatar,  // Добавляем аватар
-      role: client.user.role,  // Отправляем роль пользователя
+      avatar: client.avatar,  
+      role: client.user.role, 
     });
   } catch (err) {
     console.error(err);
@@ -47,30 +41,25 @@ async function getUserData(req, res) {
 }
 
 
-// Обновление имени и аватара пользователя
 async function updateProfile(req, res) {
-  const {name, avatar} = req.body;  // Извлекаем новые значения
+  const {name, avatar} = req.body;  
 
-  // Получаем токен из заголовков запроса
   const token = req.headers.authorization?.split(
-      ' ')[1];  // Извлекаем токен из заголовка Authorization
+      ' ')[1]; 
   if (!token) {
     return res.status(401).json(
         {message: 'Токен не найден. Пожалуйста, авторизуйтесь.'});
   }
 
   try {
-    // Декодируем токен и получаем ID пользователя
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
     const userId = decoded.id;
 
-    // Находим клиента, связанного с этим пользователем
     const client = await Client.findOne({where: {userId: userId}});
     if (!client) {
       return res.status(404).json({message: 'Клиент не найден.'});
     }
 
-    // Обновляем имя и аватар
     if (name) client.name = name;
     if (avatar) client.avatar = avatar;
 
@@ -85,6 +74,6 @@ async function updateProfile(req, res) {
 }
 
 module.exports = {
-  getUserData,    // Добавили новый метод
-  updateProfile,  // Добавили новый метод
+  getUserData,    
+  updateProfile, 
 };
