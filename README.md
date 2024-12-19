@@ -13,7 +13,7 @@
 
     для linux
    ```bash
-docker-compose up -d --build && docker-compose exec backend npx sequelize-cli db:migrate && docker-compose exec backend npx sequelize-cli db:seed:all
+    docker-compose up -d --build && docker-compose exec backend npx sequelize-cli db:migrate && docker-compose exec backend npx sequelize-cli db:seed:all
    ```
 
 4. Доступ к приложению:
