@@ -1,5 +1,6 @@
 import {createRouter, createWebHistory} from 'vue-router'
 
+import AdminSessions from '../components/AdminSessions.vue';
 import SeatsPage from '../components/SeatsPage.vue'
 import SessionsList from '../components/SessionsList.vue'
 import ProfilePage from '../components/UserProfile.vue'; // Импортируем компонент профиля
@@ -36,6 +37,12 @@ const routes =
         name: 'EditProfile',
         component: () => import(
             '../components/EditProfile.vue')  // Страница редактирования профиля
+      },
+      {
+        path: '/admin/sessions',
+        name: 'AdminSessions',
+        component: AdminSessions,
+        meta: {requiresAdmin: true}
       },
     ]
 
