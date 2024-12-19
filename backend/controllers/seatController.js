@@ -2,7 +2,6 @@
 const {Seat, Session, Ticket} = require('../models');
 const {Op} = require('sequelize');
 
-// Контроллер для получения всех мест
 async function getAllSeats(req, res) {
   try {
     const seats = await Seat.findAll({
@@ -26,7 +25,6 @@ async function getAllSeats(req, res) {
   }
 }
 
-// Контроллер для получения мест по sessionId
 async function getSeatsBySession(req, res) {
   const {sessionId} = req.params;
   try {
